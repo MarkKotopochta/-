@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Котопочта · Китайский</title>
+<link rel="stylesheet" href="./app.css?v=46">
+<body>
+<span id="home" aria-hidden="true"></span>
+<header id="topHeader">
+  <div class="landing-header">
+    <a href="#home" class="landing-brand"><span class="brand-stamp" aria-hidden="true"><span class="postal-art art-letter"></span></span>Котопочта</a>
+    <nav class="landing-nav" aria-label="Главная навигация">
+      <a href="#home" aria-current="page">Главная</a>
+      <a href="#learn">Обучение</a>
+      <a href="#vocabulary">Слова</a>
+      <a href="#shop">Магазин</a>
+      <a href="#profile">Профиль</a>
+    </nav>
+    <div class="header-actions">
+      <a class="home-profile" href="#profile" aria-label="Мой прогресс, открыть профиль">
+        <span class="home-profile-avatar"><img src="./bao-head.svg" alt=""></span>
+        <span><strong>Мой прогресс</strong><span class="home-profile-stats">
+          <span><img src="./home-art/flame.svg" alt=""><span id="homeStreak">0 дней</span></span>
+          <span><img src="./home-art/letter.svg" alt=""><span id="homeLessons">0 уроков</span></span>
+        </span></span>
+      </a>
+      <button id="theme" class="theme" type="button" aria-label="Тёмная тема" aria-pressed="false">Тёмная тема</button>
+    </div>
+  </div>
+</header>
+<div class="site-scene">
+  <div class="scenery" aria-hidden="true">
+    <span class="scenery-bamboo"></span>
+    <span class="scenery-bamboo scenery-bamboo-right"></span>
+    <div class="scenery-ornaments">
+      <img class="scenery-night scenery-stars" src="./home-art/star-field.svg" alt="">
+      <img class="scenery-lattice scenery-lattice-left" src="./welcome-art/round-lattice.svg" alt="">
+      <img class="scenery-lattice scenery-lattice-right" src="./welcome-art/round-lattice.svg" alt="">
+      <span class="scenery-cloud scenery-cloud-upper"></span>
+      <span class="scenery-cloud scenery-cloud-lower"></span>
+      <span class="scenery-cloud scenery-cloud-small"></span>
+      <img class="scenery-night scenery-moon" src="./home-art/crescent.svg" alt="">
+      <img class="scenery-night scenery-bird scenery-bird-left" src="./home-art/distant-bird.svg" alt="">
+      <img class="scenery-night scenery-bird scenery-bird-high" src="./home-art/winged-silhouette.svg" alt="">
+      <img class="scenery-night scenery-bird scenery-bird-right" src="./home-art/winged-silhouette.svg" alt="">
+      <img class="scenery-postmark" src="./home-art/postmark.svg" alt="">
+      <img class="scenery-waves scenery-waves-left" src="./home-art/waves.svg" alt="">
+      <img class="scenery-waves scenery-waves-right" src="./home-art/waves.svg" alt="">
+      <img class="scenery-letter scenery-letter-left" src="./home-art/corner-right.svg?v=2" alt="">
+      <img class="scenery-letter scenery-letter-right" src="./home-art/corner-left.svg?v=2" alt="">
+      <img class="scenery-corner scenery-corner-left" src="./home-art/corner-left.svg?v=2" alt="">
+      <img class="scenery-corner scenery-corner-right" src="./home-art/corner-right.svg?v=2" alt="">
+    </div>
+  </div>
+<div id="landing" class="landing">
+  <main class="landing-paper">
+    <div class="landing-content">
+      <section class="landing-hero">
+        <div>
+          <h1 id="homeHeading" tabindex="-1">Учи китайский язык<br class="hero-break"> с весёлыми котиками!</h1>
+          <p>Интерактивные карточки и диалоги на китайском от Котопочты.</p>
+          <div class="landing-actions">
+            <a id="homeStart" class="landing-button primary" href="#learn">Начать бесплатно</a>
+            <a class="landing-button" href="#how">Как это работает</a>
+          </div>
+        </div>
+        <span class="landing-hero-scene"><img class="landing-hero-art" src="./landing-hero.png" alt="Марк и Бао у почтового ящика"></span>
+      </section>
+      <div class="landing-features">
+        <a class="landing-feature home-cards" href="#sets">
+          <h2>Интерактивные<br> карточки</h2>
+          <span class="landing-scene scene-mark" aria-hidden="true">
+            <span class="scene-cat"><img class="scene-body" src="./mark-body.svg" alt=""><img class="scene-head" src="./mark-head.svg" alt=""></span>
+            <span class="scene-sample" lang="zh-CN">猫</span>
+          </span>
+          <span class="home-meter">
+            <progress id="homeWordMeter" max="1" value="0" aria-label="Слова, изученные в доступных наборах"></progress>
+            <span id="homeKnownWords">Выбери наборы для обучения</span>
+          </span>
+        </a>
+        <a class="landing-feature home-dialogues" href="#dialogue">
+          <h2>Генератор диалогов</h2>
+          <div class="home-dialogue-art" aria-hidden="true">
+            <span class="landing-scene scene-bao">
+              <span class="scene-cat"><img class="scene-body" src="./bao-body.svg" alt=""><img class="scene-head" src="./bao-head.svg" alt=""></span>
+              <svg class="home-bao-tea" viewBox="0 0 96 88" aria-hidden="true">
+                <path d="M33 39c9-14-14-12-7-24m19 22c9-14-14-14-5-29" fill="none" stroke="#fff1df" stroke-width="5" stroke-linecap="round"/>
+                <path d="M24 49h48l-4 16c-3 13-32 17-39 3Z" fill="#b63e2e"/>
+                <ellipse cx="48" cy="49" rx="24" ry="5" fill="#e9b25b"/>
+                <ellipse cx="48" cy="49" rx="20" ry="2.5" fill="#733627"/>
+                <path d="M33 74q16 5 31 0" fill="none" stroke="#e9b25b" stroke-width="3" stroke-linecap="round"/>
+                <path d="M43 60h11m-5-5v11" stroke="#e9b25b" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M17 57c-4 4-5 13 1 17 5 3 15-1 16-6 1-3-1-7-4-7 2-6-6-8-9-4Z" fill="#fff8ef"/>
+              </svg>
+            </span>
+            <div class="home-chat">
+              <div class="home-chat-top"><i></i><i></i><i></i></div>
+              <span class="home-message"><span lang="zh-CN">你好!</span> (Привет!)</span>
+              <span class="home-message">Как дела?</span>
+              <span class="home-chat-bottom"><i></i><b>➤</b></span>
+            </div>
+          </div>
+        </a>
+        <a class="landing-feature landing-progress" href="#profile">
+          <h2>Мой прогресс</h2>
+          <div class="home-journey">
+            <strong>Путь почтальона</strong>
+            <div class="home-route" aria-hidden="true">
+              <svg viewBox="0 0 150 70"><path d="M9 12c38 0 43 50 74 50 24 0 38-14 58-33" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 5"/><circle cx="9" cy="12" r="5" fill="currentColor"/></svg>
+              <svg class="home-route-van" viewBox="0 0 52 34">
+                <path d="M3 6h27v20H3z" fill="#b8894d"/><path d="M30 12h11l8 10v4H30z" fill="#426a54"/>
+                <path d="M34 15h5l5 6H34z" fill="#f7e9cb"/><path d="M8 12h15v10H8zm0 0 7.5 6 7.5-6" fill="none" stroke="#f7e9cb" stroke-width="1.4" stroke-linejoin="round"/>
+                <circle cx="12" cy="27" r="5" fill="#302822"/><circle cx="40" cy="27" r="5" fill="#302822"/>
+                <circle cx="12" cy="27" r="2" fill="#f7e9cb"/><circle cx="40" cy="27" r="2" fill="#f7e9cb"/>
+              </svg>
+              <img class="home-route-stamp" src="./home-art/paw-stamp.svg" alt="">
+              <img class="home-route-waves" src="./home-art/waves.svg" alt="">
+            </div>
+            <ul id="homeWeek" class="home-week" aria-label="Учебная активность за неделю"></ul>
+          </div>
+        </a>
+      </div>
+      <section class="landing-how" aria-labelledby="how">
+        <h2 id="how">Как это работает</h2>
+        <ol>
+          <li><strong>Выбери три набора</strong><span>Начни с тем, которые пригодятся тебе.</span></li>
+          <li><strong>Запоминай слова</strong><span>Слушай произношение и отмечай знакомые слова.</span></li>
+          <li><strong>Проверь себя на слух</strong><span>Собери диалог и открой перевод, когда он понадобится.</span></li>
+        </ol>
+        <a class="landing-button primary" href="#learn">Начать учиться</a>
+      </section>
+    </div>
+  </main>
+  <footer class="landing-footer"><strong>Котопочта</strong><span>доставляем языки</span></footer>
+</div>
+<section id="welcome" class="welcome" hidden>
+  <div class="welcome-content">
+    <h1>С чего начнём?</h1>
+    <p>Выберите 3 бесплатных набора</p>
+    <form id="onboarding">
+      <fieldset id="topics"><legend>Стартовые наборы</legend></fieldset>
+      <p id="selectionCount" role="status"></p>
+      <button class="primary" id="start" disabled>Продолжить</button>
+    </form>
+  </div>
+</section>
+<div id="workspace" class="workspace" hidden>
+  <main>
+    <h1 id="heading" tabindex="-1">Обучение</h1>
+    <a id="exitStudy" href="#learn" hidden>‹ К выбору режима</a>
+    <section id="learn" hidden>
+      <p class="learn-mode-intro">Изучай новые слова по карточкам или тренируй разговорную речь в диалогах.</p>
+      <div class="learn-mode-grid">
+        <a class="learn-mode" href="#sets">
+          <h2>Карточки</h2>
+          <div class="learn-tile-postal" aria-hidden="true">
+            <img class="learn-tile-envelope" src="./home-art/corner-left.svg?v=2" alt="">
+            <img class="learn-tile-stamp" src="./home-art/paw-stamp.svg" alt="">
+            <img class="learn-tile-waves" src="./home-art/waves.svg" alt="">
+            <img class="learn-tile-waves learn-tile-waves-left" src="./home-art/waves.svg" alt="">
+            <img class="learn-tile-seal" src="./home-art/postmark.svg" alt="">
+          </div>
+          <span class="learn-mode-art" aria-hidden="true">
+            <img src="./learn-mark-airmail.png" width="1280" height="1280" alt="">
+          </span>
+          <div class="learn-mode-side">
+            <div class="learn-samples" aria-hidden="true">
+              <span><strong lang="zh-CN">猫</strong>(Кот)<small><i>♪</i><i>✓</i></small></span>
+              <span><strong lang="zh-CN">邮局</strong>(Почта)<small><i>♪</i><i>✓</i></small></span>
+            </div>
+            <p>Изучай слова и фразы</p>
+            <span class="landing-button primary">Начать учить</span>
+          </div>
+        </a>
+        <a class="learn-mode learn-mode-dialogue" href="#dialogue">
+          <h2>Диалоги и рассказы</h2>
+          <div class="learn-tile-postal" aria-hidden="true">
+            <img class="learn-small-letter" src="./home-art/letter.svg" alt="">
+            <img class="learn-tile-waves" src="./home-art/waves.svg" alt="">
+          </div>
+          <span class="learn-mode-art" aria-hidden="true">
+            <img src="./learn-bao-counter.png" width="1280" height="1280" alt="">
+            <span class="learn-counter-label">POST</span>
+          </span>
+          <div class="learn-mode-side">
+            <div class="learn-bubbles" aria-hidden="true">
+              <span><b lang="zh-CN">你好!</b> (Привет)</span>
+              <span>Куда ты идёшь?</span>
+            </div>
+            <p>Практикуй общение и читай истории</p>
+            <span class="landing-button">Открыть диалоги</span>
+          </div>
+        </a>
+      </div>
+    </section>
+    <section id="sets" hidden>
+      <p class="learn-intro">Выбирай тему и учи слова</p>
+      <ul id="starterSets" class="learn-sets" aria-label="Стартовые наборы"></ul>
+      <section class="learn-progress" aria-labelledby="learnProgressTitle">
+        <div class="learn-section-heading">
+          <h2 id="learnProgressTitle">Прогресс изучения</h2>
+          <button type="button" data-page="profile">Мой профиль</button>
+        </div>
+        <dl id="learnTotals" class="learn-totals"></dl>
+      </section>
+      <div class="learn-section-heading">
+        <h2 id="otherSetsTitle">Недоступные наборы</h2>
+        <a class="landing-button" href="#vocabulary/all">Все слова</a>
+      </div>
+      <ul id="otherSets" class="learn-sets"></ul>
+    </section>
+    <section id="cards" class="study" hidden>
+      <div class="card-toolbar">
+        <label>Набор <select id="cardSet"></select></label>
+        <div class="card-progress">
+          <p id="cardPosition" aria-live="polite"></p>
+          <progress id="cardMeter" aria-label="Позиция в наборе"></progress>
+        </div>
+      </div>
+      <div id="card"></div>
+      <div class="controls card-controls">
+        <button id="previous" type="button">‹ Назад</button>
+        <button id="reviewCard" type="button">Повторить</button>
+        <button id="knowCard" class="primary" type="button">Знаю</button>
+        <button id="next" type="button">Дальше ›</button>
+      </div>
+      <button id="finishCards" class="primary" hidden>Завершить урок</button>
+    </section>
+    <section id="dialogue" class="study" hidden>
+      <div id="dialogueSettings" class="panel">
+        <h1 id="dialogueHeading" tabindex="-1">Создай свой диалог или рассказ</h1>
+        <form id="settings">
+          <fieldset class="dialogue-source dialogue-choices">
+            <legend>Тема</legend>
+            <div id="dialogueTopics"></div>
+          </fieldset>
+          <fieldset class="dialogue-source dialogue-choices">
+            <legend>Формат</legend>
+            <div>
+              <label><input type="radio" name="textFormat" value="dialogue" checked> Диалог <img src="./dialogue-art/chat-icon.svg" alt=""></label>
+              <label><input type="radio" name="textFormat" value="story"> Рассказ</label>
+            </div>
+          </fieldset>
+          <fieldset class="dialogue-source">
+            <legend>Слова для диалога</legend>
+            <label><input type="radio" name="dialogueSource" value="all" checked> Все выученные слова</label>
+            <label><input type="radio" name="dialogueSource" value="sets"> Выбранные наборы</label>
+          </fieldset>
+          <fieldset id="dialogueSets" class="dialogue-source" hidden disabled>
+            <legend>Наборы для тренировки</legend>
+            <div id="dialogueSetOptions"></div>
+            <p>Можно выбрать несколько наборов. Учитываются слова с отметкой «Знаю».</p>
+          </fieldset>
+          <p id="progress"></p>
+          <strong class="dialogue-difficulty">Уровень сложности</strong>
+          <label for="target">Знакомые слова: <output id="goal" for="target">80%</output></label>
+          <input id="target" type="range" min="0" max="100" value="80">
+          <label id="dialogueLengthControl" for="dialogueLength">Длина диалога <select id="dialogueLength"></select></label>
+          <button id="generate" class="primary">Сгенерировать текст</button>
+        </form>
+      </div>
+      <div id="dialoguePreview" class="dialogue-letter">
+        <h2>Пример: на почте</h2>
+        <p><strong>Марк</strong><br><span lang="zh-CN">你好！这是你的信。</span><br>Nǐ hǎo! Zhè shì nǐ de xìn.<br>Привет! Это твоё письмо.</p>
+        <p><strong>Бао</strong><br><span lang="zh-CN">谢谢！我想寄这个包裹。</span><br>Xièxie! Wǒ xiǎng jì zhège bāoguǒ.<br>Спасибо! Я хочу отправить эту посылку.</p>
+        <p><strong>Марк</strong><br><span lang="zh-CN">没问题，请写一下地址。</span><br>Méi wèntí, qǐng xiě yíxià dìzhǐ.<br>Без проблем. Напиши адрес, пожалуйста.</p>
+      </div>
+      <div id="result" class="panel" hidden>
+        <h2 id="dialogueTitle" tabindex="-1">Диалог</h2>
+        <p id="coverage" role="status"></p>
+        <div id="reader"></div>
+        <fieldset class="dialogue-audio">
+          <legend>Аудио</legend>
+          <button id="play" type="button" hidden>Слушать</button>
+          <button id="stop" type="button" hidden>Остановить</button>
+          <label class="dialogue-speed">Скорость <select id="dialogueRate"><option value="1">1×</option><option value="0.8" selected>0,8×</option></select><img id="dialogueSpeedIcon" src="./dialogue-art/turtle-icon.svg" alt=""></label>
+          <span class="dialogue-waveform" aria-hidden="true"></span>
+          <p id="audioStatus" role="status"></p>
+        </fieldset>
+        <button id="translate" aria-expanded="false">Показать перевод</button>
+        <div class="controls"><button id="newDialogue">К настройкам</button><button id="finishText" class="primary">Завершить текст</button></div>
+      </div>
+    </section>
+    <section id="vocabulary" hidden>
+      <div id="vocabularyOverview" class="vocabulary-overview">
+        <div class="vocabulary-layout">
+          <div class="vocabulary-intro">
+            <h1 id="vocabularyHeading" tabindex="-1">Мой словарь</h1>
+            <p>Учи слова по темам с пушистыми почтальонами!</p>
+          </div>
+          <ul id="ownedWordSets" class="vocabulary-grid" aria-label="Мои наборы"></ul>
+          <section id="lockedWordGroup" aria-labelledby="lockedWordsHeading">
+            <h2 id="lockedWordsHeading">Заблокированные наборы</h2>
+            <ul id="lockedWordSets" class="vocabulary-grid"></ul>
+          </section>
+          <aside class="vocabulary-stats" aria-labelledby="vocabularyStatsTitle">
+            <h2 id="vocabularyStatsTitle">Статистика</h2>
+            <p>Прогресс изучения</p>
+            <dl class="vocabulary-totals">
+              <div><dt>Изучено</dt><dd id="vocabularyKnown">0</dd></div>
+              <div><dt>Не изучено</dt><dd id="vocabularyRemaining">0</dd></div>
+            </dl>
+            <label for="vocabularyProgress">Общий путь</label>
+            <div class="vocabulary-route">
+              <img id="vocabularyMarker" src="./mark.svg?v=2" alt="">
+              <progress id="vocabularyProgress" max="1" value="0"></progress>
+              <span>0</span><span id="vocabularyTotal">0</span>
+            </div>
+            <img class="vocabulary-delivery-stamp" src="./home-art/paw-stamp.svg" alt="">
+            <a class="landing-button" href="#vocabulary/all">Открыть словарь</a>
+          </aside>
+        </div>
+      </div>
+      <div id="vocabularyDetail" hidden>
+      <a class="vocabulary-back" href="#vocabulary">‹ К наборам слов</a>
+      <p class="word-subtitle">Слова и фразы из наборов</p>
+      <div class="word-tools">
+        <div id="filters" role="group" aria-label="Фильтр слов">
+          <button type="button" data-filter="" aria-pressed="true">Все</button>
+          <button type="button" data-filter="known" aria-pressed="false">Изученные</button>
+          <button type="button" data-filter="learning" aria-pressed="false">Учу</button>
+          <button type="button" data-filter="review" aria-pressed="false">Сложные</button>
+        </div>
+        <input id="search" type="search" aria-label="Поиск слова" placeholder="Поиск слова…">
+      </div>
+      <ul id="wordList"></ul><p id="noWords" hidden>По этому запросу слов нет.</p>
+      </div>
+    </section>
+    <p id="wordAudio" role="status"></p>
+    <section id="shop" hidden>
+      <div class="shop-banner">
+        <div class="shop-banner-inner">
+          <div class="shop-scene" aria-hidden="true">
+            <span class="shop-stall"></span>
+            <span class="shop-awning"></span>
+            <span class="postal-art art-letter shop-letter"></span>
+            <span class="shop-mark"></span>
+            <span class="shop-counter"></span>
+          </div>
+          <div class="shop-banner-copy">
+            <h1 id="shopHeading" tabindex="-1">Магазин Котопочты</h1>
+            <p>Новые темы для занятий и подписка на дополнительные возможности.</p>
+          </div>
+        </div>
+      </div>
+      <div class="shop-catalogue">
+        <div id="shopFilters" class="shop-filters" role="group" aria-label="Разделы магазина">
+          <button type="button" data-shop-filter="all" aria-pressed="true">Всё</button>
+          <button type="button" data-shop-filter="packs" aria-pressed="false">Наборы слов</button>
+          <button type="button" data-shop-filter="subscription" aria-pressed="false">Подписка</button>
+          <button type="button" data-shop-filter="costumes" aria-pressed="false">Костюмы</button>
+          <button type="button" data-shop-filter="avatars" aria-pressed="false">Аватары</button>
+        </div>
+        <section class="shop-packs" data-shop-section="packs" aria-labelledby="shopPacksHeading">
+          <h2 id="shopPacksHeading">Наборы слов</h2>
+          <p id="shopAccess"></p>
+          <ul id="testSets"></ul>
+        </section>
+        <div class="shop-extras">
+          <section class="shop-extra shop-subscription" data-shop-section="subscription" aria-labelledby="shopSubscriptionHeading">
+            <span class="postal-art art-talk" aria-hidden="true"></span>
+            <div>
+              <h2 id="shopSubscriptionHeading">Подписка</h2>
+              <p>Готовим ИИ-диалоги на твою тему, словарь по уровням HSK и пояснения грамматики в диалогах.</p>
+            </div>
+          </section>
+          <section class="shop-extra" data-shop-section="costumes" aria-labelledby="shopCostumesHeading">
+            <img src="./mark.svg?v=2" alt="">
+            <div><h2 id="shopCostumesHeading">Костюмы</h2><p class="shop-soon">Скоро</p></div>
+          </section>
+          <section class="shop-extra" data-shop-section="avatars" aria-labelledby="shopAvatarsHeading">
+            <img src="./bao-head.svg" alt="">
+            <div><h2 id="shopAvatarsHeading">Аватары</h2><p class="shop-soon">Скоро</p></div>
+          </section>
+        </div>
+      </div>
+    </section>
+    <section id="profile" aria-labelledby="profileHeading" hidden>
+      <div class="profile-grid">
+        <section class="profile-identity">
+          <h1 id="profileHeading" tabindex="-1">Личный профиль <img src="./profile-art/04-branch.svg" alt=""></h1>
+          <div class="profile-postcard">
+            <h2>Карточка почтальона</h2>
+            <img class="profile-card-cancel" src="./profile-art/04-cancel-with-stamp.svg" alt="">
+            <div class="profile-postcard-content">
+              <img class="profile-portrait" src="./profile-art/04-profile-portrait.svg" alt="Марк">
+              <div class="profile-address">
+                <div id="profileNameDisplay">
+                  <strong id="profileName">Ученик</strong>
+                  <p id="profileRank"></p>
+                  <button type="button" id="editProfileName">Изменить имя</button>
+                </div>
+                <form id="profileNameForm" hidden>
+                  <label for="profileNameInput">Имя пользователя</label>
+                  <input id="profileNameInput" type="text" maxlength="40" autocomplete="nickname" required>
+                  <div class="profile-name-actions">
+                    <button type="submit">Сохранить</button>
+                    <button type="button" id="cancelProfileName">Отмена</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="profile-statistics" aria-labelledby="profileStatsHeading">
+          <h2 id="profileStatsHeading">Почтовая статистика</h2>
+          <dl id="stats">
+            <div><dt><img src="./profile-art/04-stat-icon-lesson.svg" alt="">Пройдено уроков</dt><dd id="profileLessons">0</dd></div>
+            <div><dt><img src="./profile-art/04-stat-icon-dialogue.svg" alt="">Диалоги и рассказы</dt><dd id="profileTexts">0</dd></div>
+            <div><dt><img src="./profile-art/04-stat-icon-words.svg" alt="">Выучено слов</dt><dd id="profileWords">0</dd></div>
+            <div><dt><img src="./profile-art/04-stat-icon-xp.svg" alt="">Всего опыта</dt><dd id="profileXP">0 XP</dd></div>
+          </dl>
+        </section>
+        <section class="profile-activity profile-panel" aria-labelledby="profileActivityHeading">
+          <div class="profile-calendar">
+            <h2 id="profileActivityHeading">Календарь активности</h2>
+            <div class="profile-month">
+              <button type="button" id="profilePrevMonth" aria-label="Предыдущий месяц">‹</button>
+              <strong id="profileMonth" aria-live="polite"></strong>
+              <button type="button" id="profileNextMonth" aria-label="Следующий месяц">›</button>
+            </div>
+            <table aria-labelledby="profileMonth">
+              <thead><tr><th scope="col">Пн</th><th scope="col">Вт</th><th scope="col">Ср</th><th scope="col">Чт</th><th scope="col">Пт</th><th scope="col">Сб</th><th scope="col">Вс</th></tr></thead>
+              <tbody id="profileDays"></tbody>
+            </table>
+          </div>
+          <div class="profile-streak">
+            <h2>Ударный режим</h2>
+            <div class="profile-flame"><img src="./profile-art/02-streak-flame.svg" alt=""><strong id="profileStreak">0</strong></div>
+            <p id="profileStreakCaption">дней подряд</p>
+          </div>
+        </section>
+        <section class="profile-achievements profile-panel" aria-labelledby="profileAwardsHeading">
+          <h2 id="profileAwardsHeading">Мои марки и достижения</h2>
+          <ul id="profileAwards"></ul>
+        </section>
+        <section class="profile-sets profile-panel" aria-labelledby="profileSetsHeading">
+          <h2 id="profileSetsHeading">Мои наборы</h2>
+          <div id="setStats"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+</div>
+<dialog id="shopGift" class="shop-gift" aria-labelledby="shopGiftTitle" aria-describedby="shopGiftAccess">
+  <div class="shop-gift-heading">
+    <img src="./mark.svg?v=2" alt="Марк">
+    <h2 id="shopGiftTitle" tabindex="-1" autofocus>Молодец! Ты нашёл пасхалку!</h2>
+  </div>
+  <p id="shopGiftAccess"></p>
+  <p>Что уже в планах</p>
+  <ul>
+    <li>полноценные ИИ-диалоги на твою тему</li>
+    <li>словарь по уровням HSK</li>
+    <li>пояснения грамматики в диалогах</li>
+  </ul>
+  <div class="shop-gift-telegram">
+    <div>
+      <h3>Напиши Марку в Telegram</h3>
+      <p>Какую цену ты считаешь справедливой за месяц подписки и за один набор слов?</p>
+      <p>Первые приглашения на сайт тоже будут в канале.</p>
+    </div>
+    <a class="shop-gift-channel" href="https://t.me/kotopochta_cn" target="_blank" rel="noopener noreferrer">
+      <img src="./shop-art/telegram-channel-qr.svg" width="120" height="120" alt="QR-код канала в Telegram">
+      <span>@kotopochta_cn</span>
+    </a>
+  </div>
+  <div class="controls shop-gift-actions">
+    <button id="closeShopGift" type="button">Закрыть</button>
+    <a class="landing-button primary" href="https://t.me/kotopochta_cn?direct" target="_blank" rel="noopener noreferrer">Написать в Telegram</a>
+  </div>
+</dialog>
+<script type="module" src="./app.mjs?v=34"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 150" role="img" aria-labelledby="title"><title id="title">Луна с тёплым свечением</title><defs>
+  <radialGradient id="moon-halo"><stop stop-color="#FFC46D" stop-opacity=".42"/><stop offset=".57" stop-color="#EBA64B" stop-opacity=".16"/><stop offset="1" stop-color="#EBA64B" stop-opacity="0"/></radialGradient>
+  <linearGradient id="moon-light" x2=".8" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#FFF4BB"/><stop offset="1" stop-color="#F4AD54"/></linearGradient>
+  <filter id="moon-light-blur"><feGaussianBlur stdDeviation="5"/></filter>
+</defs><circle cx="83" cy="75" r="72" fill="url(#moon-halo)"/><g filter="url(#moon-light-blur)" opacity=".64"><path d="M75 17C49 25 32 48 34 73C36 100 57 120 86 121C109 122 128 109 136 91C117 103 92 98 77 79C62 61 62 36 75 17Z" fill="#F6B55D"/></g><path d="M75 17C49 25 32 48 34 73C36 100 57 120 86 121C109 122 128 109 136 91C117 103 92 98 77 79C62 61 62 36 75 17Z" fill="url(#moon-light)"/></svg>
