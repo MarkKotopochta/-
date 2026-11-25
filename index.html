@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Котопочта · Китайский</title>
-<link rel="stylesheet" href="./app.css?v=46">
+<link rel="stylesheet" href="./app.css?v=47">
 <body>
 <span id="home" aria-hidden="true"></span>
 <header id="topHeader">
@@ -253,8 +253,11 @@
           </fieldset>
           <p id="progress"></p>
           <strong class="dialogue-difficulty">Уровень сложности</strong>
-          <label for="target">Знакомые слова: <output id="goal" for="target">80%</output></label>
-          <input id="target" type="range" min="0" max="100" value="80">
+          <label id="maximizeFamiliarControl"><input id="maximizeFamiliar" type="checkbox" checked> Максимум знакомых слов</label>
+          <div id="targetControl" hidden>
+            <label for="target">Знакомые слова: <output id="goal" for="target">80%</output></label>
+            <input id="target" type="range" min="0" max="100" value="80">
+          </div>
           <label id="dialogueLengthControl" for="dialogueLength">Длина диалога <select id="dialogueLength"></select></label>
           <button id="generate" class="primary">Сгенерировать текст</button>
         </form>
@@ -308,8 +311,15 @@
             </div>
             <img class="vocabulary-delivery-stamp" src="./home-art/paw-stamp.svg" alt="">
             <a class="landing-button" href="#vocabulary/all">Открыть словарь</a>
+            <a class="vocabulary-back" href="#vocabulary/collection">Копилка слов</a>
           </aside>
         </div>
+      </div>
+      <div id="wordCollection" hidden>
+        <a class="vocabulary-back" href="#vocabulary">‹ К наборам слов</a>
+        <p id="wordCollectionCount" aria-live="polite"></p>
+        <p id="wordCollectionEmpty">Нажми на выделенное слово в диалоге и выбери «Запомнил».</p>
+        <ul id="wordCollectionList" class="word-collection-list"></ul>
       </div>
       <div id="vocabularyDetail" hidden>
       <a class="vocabulary-back" href="#vocabulary">‹ К наборам слов</a>
@@ -471,6 +481,6 @@
     <a class="landing-button primary" href="https://t.me/kotopochta_cn?direct" target="_blank" rel="noopener noreferrer">Написать в Telegram</a>
   </div>
 </dialog>
-<script type="module" src="./app.mjs?v=34"></script>
+<script type="module" src="./app.mjs?v=38"></script>
 </body>
 </html>

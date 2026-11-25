@@ -1,237 +1,12 @@
 import { words } from './food.mjs?v=5';
 import { sets } from './catalog.mjs?v=8';
+import { dialogueScenes } from './dialogue-scenes.mjs?v=2';
 
 export const dialogueLengths = [
   { label: 'Короткий', turns: 4, exchanges: [0, 1] },
   { label: 'Средний', turns: 6, exchanges: [0, 1, 3] },
   { label: 'Длинный', turns: 8, exchanges: [0, 1, 2, 3] },
 ];
-
-// Vertical bars mark the learning units used for the coverage calculation.
-// Every option is an authored two-turn exchange compatible with its scene.
-const scenes = [
-  {
-    title: 'В кафе', topic: 'food', speakers: ['Гость', 'Официант'],
-    exchanges: [
-      [
-        [
-          ['你好！|请问，|有空位吗？', 'Здравствуйте! Скажите, есть свободное место?', '吗 превращает утверждение в вопрос с ответом «да» или «нет».'],
-          ['有。|请坐。|这是|菜单。', 'Есть. Садитесь, пожалуйста. Вот меню.', '这是 вводит предмет, который показывают собеседнику.'],
-        ], [
-          ['打扰一下，|我能坐这里吗？', 'Извините, можно здесь сесть?', '能…吗？ помогает спросить, можно ли что-то сделать.'],
-          ['当然可以。|请坐。', 'Конечно. Садитесь, пожалуйста.', '当然 подчёркивает, что согласие не вызывает сомнений.'],
-        ], [
-          ['请给我|菜单。', 'Меню, пожалуйста.', '请给我… — вежливая просьба дать что-то.'],
-          ['今天有|饺子、|汤|和|炒饭。', 'Сегодня есть пельмени, суп и жареный рис.', 'Знак 、 разделяет элементы перечисления.'],
-        ],
-      ], [
-        [
-          ['我想吃|饺子，|再来一碗|汤。', 'Я хочу пельмени и ещё миску супа.', '再来… используют, чтобы добавить к заказу ещё что-то.'],
-          ['好的，|饺子|和|汤。', 'Хорошо, пельмени и суп.', 'После 好的 можно повторить заказ для подтверждения.'],
-        ], [
-          ['我想吃|米饭|和|鸡肉。', 'Я хочу рис и курицу.', '和 соединяет два существительных.'],
-          ['好的，|米饭|和|鸡肉。', 'Хорошо, рис и курица.', 'В ответе можно опустить глагол и повторить только названия блюд.'],
-        ], [
-          ['请给我一份|炒饭，|不要放|鸡蛋。', 'Одну порцию жареного риса, пожалуйста, без яйца.', '不要放… буквально означает «не кладите…».'],
-          ['没问题，|我会告诉厨房。', 'Без проблем, я передам на кухню.', '会 перед глаголом здесь сообщает о будущем действии.'],
-        ], [
-          ['我想吃|饺子，|喝|茶。', 'Я хочу пельмени и чай.', 'Оба действия, 吃 и 喝, относятся к одному 我想.'],
-          ['饺子、|茶，|好的。', 'Пельмени, чай. Хорошо.', 'Хорошо можно сказать после того, как повторили заказ.'],
-        ],
-      ], [
-        [
-          ['请再给我|一杯|水。', 'Дайте мне ещё стакан воды, пожалуйста.', '杯 — счётное слово для напитков в чашках или стаканах.'],
-          ['好的，|马上给您。', 'Хорошо, сейчас принесу.', '马上 значит «сейчас же».'],
-        ], [
-          ['可以给我一双|筷子|吗？', 'Можно мне пару палочек?', '双 употребляют для парных предметов, включая палочки.'],
-          ['可以，|我这就去拿。', 'Конечно, я сейчас принесу.', '这就 подчёркивает, что действие начнётся сразу.'],
-        ], [
-          ['汤|辣|吗？', 'Суп острый?', 'Прилагательное 辣 может быть сказуемым без 是.'],
-          ['不辣，|很好吃。', 'Не острый. Очень вкусный.', '不 перед прилагательным образует отрицание.'],
-        ],
-      ], [
-        [
-          ['请问，|在哪里|结账？', 'Скажите, где можно оплатить?', '在哪里 спрашивает о месте действия.'],
-          ['在门口。|谢谢！', 'У входа. Спасибо!', '在 ставится перед местом.'],
-        ], [
-          ['我们可以|分开付吗？', 'Можно заплатить раздельно?', '分开 перед глаголом означает «раздельно».'],
-          ['没问题，|请到收银台。', 'Без проблем, подойдите к кассе.', '到 указывает, куда нужно подойти.'],
-        ], [
-          ['这儿的|茶|真|好喝！', 'Какой здесь вкусный чай!', '真 перед прилагательным усиливает оценку.'],
-          ['谢谢！|还要|茶|吗？', 'Спасибо! Хотите ещё чаю?', '还要…？ спрашивает, нужно ли что-то ещё.'],
-        ],
-      ],
-    ],
-  },
-  {
-    title: 'Как добраться?', topic: 'travel', speakers: ['Путешественник', 'Прохожий'],
-    exchanges: [
-      [
-        [
-          ['你好！|请问，|地铁站|在哪里？', 'Здравствуйте! Скажите, где станция метро?', '在哪里 — «где находится».'],
-          ['就在|附近。|从这里|直走。', 'Совсем близко. Идите отсюда прямо.', '从 обозначает начальную точку.'],
-        ], [
-          ['打扰一下，|请问|火车站|怎么走？', 'Извините, как пройти к вокзалу?', '怎么走 — распространённый вопрос о маршруте.'],
-          ['沿着这条路走，|过了路口就到了。', 'Идите по этой улице. За перекрёстком уже будете на месте.', '过了…就… связывает ориентир со следующим этапом пути.'],
-        ],
-      ], [
-        [
-          ['需要在|路口|转弯|吗？', 'Нужно поворачивать на перекрёстке?', '在路口 указывает место поворота.'],
-          ['不用。|入口|就在|右边。', 'Нет. Вход будет справа.', '不用 означает «не нужно».'],
-        ], [
-          ['步行|大概需要|几|分钟？', 'Сколько примерно минут идти пешком?', '几 ставится перед счётным словом или единицей измерения.'],
-          ['不远，|大约|五|分钟。', 'Недалеко, примерно пять минут.', '大约 обозначает приблизительное количество.'],
-        ],
-      ], [
-        [
-          ['有|地图|吗？', 'У вас есть карта?', '有…吗？ — короткий вопрос о наличии.'],
-          ['有，|我在|地图|上指给你看。', 'Есть, покажу вам на карте.', '在…上 указывает поверхность или носитель, здесь карту.'],
-        ], [
-          ['那个|入口|好找吗？', 'Этот вход легко найти?', '好 перед глаголом может означать, что действовать легко.'],
-          ['好找。|门口有个蓝色的牌子。', 'Легко. У входа есть синяя табличка.', '门口 — место перед входом.'],
-        ],
-      ], [
-        [
-          ['谢谢！|我知道了。', 'Спасибо! Теперь понятно.', '了 здесь показывает новое состояние: раньше не знал, теперь понял.'],
-          ['不客气，|路上小心。', 'Не за что, будьте осторожны в дороге.', '路上 — «по дороге», 小心 — «будьте осторожны».'],
-        ], [
-          ['多亏有你，|不然我就走错了。', 'Хорошо, что вы помогли, иначе я бы пошёл не туда.', '不然 вводит последствие, которого удалось избежать.'],
-          ['没事，|祝你一路顺风。', 'Да ничего. Счастливого пути!', '一路顺风 — устойчивое пожелание хорошей дороги.'],
-        ],
-      ],
-    ],
-  },
-  {
-    title: 'Первое знакомство', topic: 'introduction', speakers: ['Марк', 'Бао'],
-    exchanges: [
-      [
-        [
-          ['你好！|你叫什么名字？', 'Привет! Как тебя зовут?', '什么名字 — «какое имя».'],
-          ['你好！|我叫|阿包。|很高兴认识你。', 'Привет! Меня зовут Бао. Рад познакомиться.', 'После 我叫 называют своё имя.'],
-        ], [
-          ['您好！|请问，|怎么称呼您？', 'Здравствуйте! Скажите, как к вам обращаться?', '您 — вежливое «вы».'],
-          ['叫我阿包就行。|初次见面，|请多关照。', 'Зовите меня А-Бао. Рад знакомству.', '…就行 означает, что указанного действия достаточно.'],
-        ],
-      ], [
-        [
-          ['你|是|中国人|吗？', 'Ты из Китая?', '是 связывает подлежащее с характеристикой.'],
-          ['对，|我|是|中国人。', 'Да, я из Китая.', '对 в начале ответа подтверждает сказанное.'],
-        ], [
-          ['你|住|在这附近吗？', 'Ты живёшь поблизости?', 'После 住在 называют место проживания.'],
-          ['对，|我|就住|在这儿。', 'Да, я живу прямо здесь.', '就 подчёркивает близость или точность места.'],
-        ],
-      ], [
-        [
-          ['你|有什么|爱好？', 'Какие у тебя увлечения?', '有什么…？ помогает спросить, что есть у собеседника.'],
-          ['我|喜欢|看书|和|聊天。', 'Я люблю читать и болтать.', 'После 喜欢 может стоять действие.'],
-        ], [
-          ['你|平时|都做些什么？', 'Чем ты обычно занимаешься?', '平时 задаёт контекст обычных занятий.'],
-          ['我|有空就去散步。', 'Когда есть время, я гуляю.', '有空就… — «как только есть свободное время…».'],
-        ],
-      ], [
-        [
-          ['和你|聊天|很开心。|再见！', 'Приятно было поболтать. До встречи!', '和你聊天 — «разговаривать с тобой».'],
-          ['我也是。|再见！', 'Мне тоже. До встречи!', '我也是 — «я тоже» или «мне тоже» по контексту.'],
-        ], [
-          ['今天先聊到这里吧。|改天再聊。', 'Давай на сегодня закончим. Поболтаем в другой день.', 'Частица 吧 смягчает предложение.'],
-          ['好啊，|回头见！', 'Давай, увидимся!', '回头见 — разговорное «увидимся позже».'],
-        ],
-      ],
-    ],
-  },
-  {
-    title: 'В магазине одежды', topic: 'shopping', speakers: ['Покупатель', 'Продавец'],
-    exchanges: [
-      [
-        [
-          ['请问，|这件|外套|多少钱？', 'Скажите, сколько стоит эта куртка?', '件 — счётное слово для предметов одежды.'],
-          ['这件|外套|一百|元。', 'Эта куртка стоит сто юаней.', 'Цену можно назвать сразу после названия товара.'],
-        ], [
-          ['这件|外套|有|黑色|的吗？', 'Эта куртка есть в чёрном цвете?', 'После 黑色的 можно опустить уже названный предмет.'],
-          ['有，|黑色|和|蓝色|都有。', 'Да, есть и чёрная, и синяя.', '都有 — «всё перечисленное есть».'],
-        ],
-      ],
-      [[
-        ['可以试一下吗？', 'Можно примерить?', '一下 смягчает просьбу.'],
-        ['可以，|请到试衣间。', 'Конечно, пройдите в примерочную.', '试衣间 — помещение для примерки одежды.'],
-      ]],
-      [[
-        ['这个|尺码|有点|大。', 'Этот размер великоват.', '有点 перед 大 означает «немного великоват».'],
-        ['那就|换|小|一号的。', 'Тогда возьмём на размер меньше.', '小一号 — «на один размер меньше».'],
-      ]],
-      [[
-        ['我|买|这件。|可以用|银行卡|付款|吗？', 'Беру эту. Можно оплатить картой?', '用 вводит способ оплаты.'],
-        ['可以。|这是您的|收据。', 'Да. Вот ваш чек.', '您的 перед существительным означает «ваш».'],
-      ]],
-    ],
-  },
-  {
-    title: 'Считаем коробки', topic: 'numbers', speakers: ['Марк', 'Бао'],
-    exchanges: [
-      [
-        [
-          ['桌上有|几|个|箱子？', 'Сколько коробок на столе?', 'Вопрос строится по схеме 几 + счётное слово + предмет.'],
-          ['有|三|个|箱子。', 'Три коробки.', '个 ставится между числом 三 и предметом 箱子.'],
-        ], [
-          ['箱子|有|多少|个？', 'Сколько коробок?', 'После 多少 можно поставить 个.'],
-          ['一共|三|个。', 'Всего три.', '一共 вводит итоговое количество.'],
-        ],
-      ],
-      [[
-        ['再|加|两|个，|一共|多少？', 'Если добавить ещё две, сколько будет всего?', '两 употребляют перед счётным словом 个.'],
-        ['三|加|二|等于|五。', 'Три плюс два равно пяти.', 'В арифметическом выражении говорят 二, а не 两.'],
-      ]],
-      [[
-        ['五|减|一|等于|几？', 'Пять минус один равно скольким?', '减 означает «вычесть».'],
-        ['等于|四。', 'Равно четырём.', '等于 соединяет выражение и результат.'],
-      ]],
-      [[
-        ['大概有|十|公斤|吗？', 'Всего примерно десять килограммов?', '公斤 ставится после числа.'],
-        ['不到|十|公斤，|八|公斤|左右。', 'Меньше десяти, около восьми килограммов.', '左右 ставится после количества и означает «примерно».'],
-      ]],
-    ],
-  },
-  {
-    title: 'Договариваемся о встрече', topic: 'time', speakers: ['Марк', 'Бао'],
-    exchanges: [
-      [
-        [
-          ['明天|你有空吗？', 'Завтра ты свободен?', '有空 означает «иметь свободное время».'],
-          ['明天|下午|有空。', 'Завтра после обеда свободен.', '明天 ставится перед более точным указанием 下午.'],
-        ], [
-          ['今天|还是|明天|见面？', 'Встретимся сегодня или завтра?', '还是 соединяет варианты в вопросе.'],
-          ['明天|下午|吧。', 'Давай завтра после обеда.', '吧 смягчает предложение.'],
-        ],
-      ],
-      [[
-        ['几点|见面？', 'Во сколько встретимся?', '几点 спрашивает, который час или во сколько что-то произойдёт.'],
-        ['下午|三|点|半。', 'В половине четвёртого дня.', '三点半 — 3:30: сначала час, затем 半.'],
-      ]],
-      [[
-        ['我们能聊|多久？', 'Сколько времени сможем поговорить?', '多久 спрашивает о длительности.'],
-        ['大概|一|个|小时。', 'Примерно час.', '一个小时 обозначает длительность в один час.'],
-      ]],
-      [[
-        ['好，|明天见！', 'Хорошо, до завтра!', 'Перед 见 можно поставить день следующей встречи.'],
-        ['明天见！|别迟到。', 'До завтра! Не опаздывай.', '别 перед глаголом образует запрет или просьбу не делать что-либо.'],
-      ]],
-    ],
-  },
-];
-
-scenes.push({
-  title: 'На почте', topic: 'post', speakers: ['Марк', 'Бао'],
-  exchanges: [
-    [[['你好！|我想寄这个包裹。', 'Здравствуйте! Я хочу отправить эту посылку.', '寄 означает «отправить по почте».'],
-      ['好的。|请写一下地址。', 'Хорошо. Напишите адрес, пожалуйста.', '一下 смягчает просьбу.']]],
-    [[['请问，|多少钱？', 'Скажите, сколько стоит?', '多少钱 — вопрос о цене.'],
-      ['二十|元。', 'Двадцать юаней.', '元 — денежная единица.']]],
-    [[['可以|用手机付款吗？', 'Можно заплатить телефоном?', '可以…吗？ — просьба о разрешении.'],
-      ['可以。|请扫这里。', 'Можно. Отсканируйте здесь.', '这里 — «здесь».']]],
-    [[['谢谢！', 'Спасибо!', '谢谢 произносится с нейтральным тоном на втором слоге.'],
-      ['不客气！', 'Не за что!', '不客气 — обычный ответ на благодарность.']]],
-  ],
-});
 
 const globalUnits = new Map(Object.entries(words).map(([id, [text]]) => [text, id]));
 function learningUnits(text, topicUnits = globalUnits) {
@@ -240,41 +15,121 @@ function learningUnits(text, topicUnits = globalUnits) {
     return topicUnits.get(key) ?? globalUnits.get(key) ?? null;
   });
 }
-export const dialogueTemplates = scenes.flatMap(({ title, topic, speakers, exchanges }) => {
-  const topicUnits = new Map((sets[topic]?.items ?? []).map(id => [words[id][0], id]));
-  function compileLine([text, ru, grammar], index) {
-    return {
-      speaker: speakers[index], text: text.replaceAll('|', ''), ru, grammar,
-      units: learningUnits(text, topicUnits),
-    };
+
+function* bindings(slots, base = {}) {
+  const names = Object.keys(slots);
+  function* fill(index, context) {
+    if (index === names.length) {
+      yield context;
+      return;
+    }
+    const name = names[index];
+    for (const value of slots[name]) yield* fill(index + 1, { ...context, [name]: value });
   }
-  return dialogueLengths.map(({ turns, exchanges: selected }) => ({
-    title, topic, turns,
-    options: selected.map(index => exchanges[index].map(pair => pair.map(compileLine))),
-  }));
-});
+  yield* fill(0, base);
+}
+
+const slotPattern = /\{(\w+(?:\.\w+)*)\}/g;
+function fillSlot(path, context, language) {
+  const value = path.split('.').reduce((item, key) => item[key], context);
+  return typeof value === 'string' ? value : value[language];
+}
+
+function renderLine([chinese, russian, explanation], context, speaker, topicUnits) {
+  let source = '';
+  let end = 0;
+  let bankWord;
+  let bankUnit;
+  for (const match of chinese.matchAll(slotPattern)) {
+    source += chinese.slice(end, match.index);
+    if (match[1] === 'bank') {
+      bankWord = { word: context.bank.word, start: source.replaceAll('|', '').length };
+      bankUnit = source.split('|').length - 1;
+    }
+    source += fillSlot(match[1], context, 'zh');
+    end = match.index + match[0].length;
+  }
+  source += chinese.slice(end);
+  const units = learningUnits(source, topicUnits);
+  if (bankWord) units[bankUnit] = bankWord.word.id;
+  const substitute = (text, language) => text.replace(slotPattern, (_, path) => fillSlot(path, context, language));
+  return {
+    speaker, units, text: source.replaceAll('|', ''), ru: substitute(russian, 'ru'),
+    grammar: explanation && substitute(explanation, 'ru'),
+    ...(bankWord && { bankWord }),
+  };
+}
+
+const templates = dialogueScenes.map(scene => ({
+  ...scene,
+  topicUnits: new Map((sets[scene.topic]?.items ?? []).map(id => [words[id][0], id])),
+  bank: scene.bank.map(word => ({ zh: word.zh, ru: word.inLine, classifier: word.classifier, word })),
+}));
+
+function stageOptions(stage, template, shared, known, saved, previousLines) {
+  const groups = new Map();
+  for (const { slots, lines, distinct } of stage) {
+    const needsBank = lines.some(([zh]) => zh.includes('{bank}'));
+    const candidates = needsBank ? { ...slots, bank: template.bank } : slots;
+    for (const context of bindings(candidates, shared)) {
+      if (distinct && context[distinct[0]] === context[distinct[1]]) continue;
+      const pair = lines.map((line, index) => renderLine(line, context, template.speakers[index], template.topicUnits));
+      const units = pair.flatMap(line => line.units);
+      const learned = units.filter(id => known.has(id));
+      const familiar = learned.length + units.filter(id => saved.has(id)).length;
+      const unique = [...new Set(units.filter(id => known.has(id) || saved.has(id)))].sort();
+      const isPrevious = pair.every((line, index) => line.text === previousLines[index]);
+      const key = JSON.stringify([units.length, learned.length, familiar, unique, isPrevious]);
+      const group = groups.get(key);
+      if (!group || Math.random() * ++group.count < 1) {
+        groups.set(key, { pair, total: units.length, learned: learned.length, familiar, unique, isPrevious, count: group?.count ?? 1 });
+      }
+    }
+  }
+  return [...groups.values()];
+}
 
 export function dialogueVocabulary(known, topics) {
   if (!topics) return known;
   return new Set(topics.flatMap(topic => sets[topic].items).filter(id => known.has(id)));
 }
 
-export function assembleDialogue(known, target, turns, topics, topic) {
+export function assembleDialogue(known, target, turns, topics, topic, { saved = new Set(), previous } = {}) {
   const familiarWords = dialogueVocabulary(known, topics);
+  const stages = dialogueLengths.find(length => length.turns === turns)?.exchanges;
+  if (!stages) return;
+  const previousLines = previous?.split('\n') ?? [];
   let best;
-  let distance = Infinity;
-  for (const template of dialogueTemplates) {
-    if (template.turns !== turns || (topic ? template.topic !== topic : topics && !topics.includes(template.topic))) continue;
-    const options = template.options.reduce((paths, exchange) =>
-      paths.flatMap(lines => exchange.map(pair => [...lines, ...pair])), [[]]);
-    for (const lines of options) {
-      const units = lines.flatMap(line => line.units);
-      const familiar = units.filter(id => id !== null && familiarWords.has(id)).length;
-      const difference = Math.abs(100 * familiar / units.length - target);
-      if (difference < distance) {
-        distance = difference;
-        best = { title: template.title, topic: template.topic, lines, familiar, total: units.length };
+  let ties = 0;
+  for (const template of templates) {
+    if (topic ? topic !== template.topic : topics && !topics.includes(template.topic)) continue;
+    for (const shared of bindings(template.shared ?? {})) {
+      const options = stages.map((stage, index) => stageOptions(template.stages[stage], template, shared,
+        familiarWords, saved, previousLines.slice(index * 2, index * 2 + 2)));
+      const path = [];
+      function search(index, learned, familiar, total, unique, repeat) {
+        if (index < options.length) {
+          for (const option of options[index]) {
+            path[index] = option.pair;
+            search(index + 1, learned + option.learned, familiar + option.familiar, total + option.total,
+              new Set([...unique, ...option.unique]), repeat && option.isPrevious);
+          }
+          return;
+        }
+        const score = target == null ? [...unique].filter(id => familiarWords.has(id)).length
+          : -Math.abs(100 * familiar / total - target);
+        const tieScore = target == null ? learned / total : unique.size;
+        const comparison = best ? score - best.score || tieScore - best.tieScore
+          || Number(best.repeat) - Number(repeat) : 1;
+        if (comparison < 0) return;
+        if (comparison > 0) ties = 0;
+        if (Math.random() * ++ties < 1) {
+          const lines = path.flat();
+          best = { title: template.title, topic: template.topic, lines, familiar, total, distinct: unique.size,
+            signature: lines.map(line => line.text).join('\n'), score, tieScore, repeat };
+        }
       }
+      search(0, 0, 0, 0, new Set(), true);
     }
   }
   return best;

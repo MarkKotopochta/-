@@ -1,6 +1,7 @@
 import { words } from './food.mjs?v=5';
 import { sets } from './catalog.mjs?v=8';
-import { assembleDialogue, assembleStory, dialogueLengths, dialogueVocabulary } from './dialogues.mjs?v=3';
+import { assembleDialogue, assembleStory, dialogueLengths, dialogueVocabulary } from './dialogues.mjs?v=7';
+import { bankWords, freeWordLimit, rememberBankWord } from './dialogue-bank.mjs?v=1';
 import { currentStreak, dateKey, profileProgress, studyDate, studyMonth, weekdayLabels } from './profile.mjs';
 
 const byId = id => document.getElementById(id);
@@ -10,6 +11,7 @@ const claimedSetsKey = 'kotopochta-claimed-sets';
 const activityKey = 'kotopochta-study-days';
 const masteredWordsKey = 'kotopochta-mastered-words';
 const profileNameKey = 'kotopochta-profile-name';
+const wordCollectionKey = 'kotopochta-dialogue-words';
 const promotionEndsAt = Date.parse('2027-02-01T00:00:00+03:00');
 const promotionMessage = 'До 1 февраля 2027 года любой набор можно открыть бесплатно. Нажми на карточку нужного набора.';
 function load(key, fallback) {
@@ -19,6 +21,39 @@ function load(key, fallback) {
 function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); }
   catch { /* Keep this session usable when browser storage is unavailable. */ }
+}
+const storedBankIds = load(wordCollectionKey, []);
+const savedBankWords = new Set(Array.isArray(storedBankIds) ? storedBankIds.filter(id => bankWords.has(id)) : []);
+let previousDialogue;
+
+function renderWordCollection() {
+  const count = byId('wordCollectionCount');
+  count.textContent = 'Сохранено ' + savedBankWords.size + ' из ' + freeWordLimit;
+  byId('wordCollectionEmpty').hidden = savedBankWords.size > 0;
+  const list = byId('wordCollectionList');
+  list.replaceChildren(...[...savedBankWords].reverse().map(id => {
+    const word = bankWords.get(id);
+    const item = document.createElement('li');
+    const term = document.createElement('div');
+    const chinese = document.createElement('strong');
+    chinese.lang = 'zh-CN';
+    chinese.textContent = word.zh;
+    term.append(chinese, ' · ' + word.pinyin + ' · ' + word.ru);
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.textContent = 'Удалить';
+    remove.setAttribute('aria-label', 'Удалить из копилки: ' + word.ru);
+    remove.onclick = () => {
+      const nextIndex = [...list.children].indexOf(item);
+      savedBankWords.delete(id);
+      save(wordCollectionKey, [...savedBankWords]);
+      renderWordCollection();
+      (list.children[nextIndex]?.querySelector('button') ??
+        list.lastElementChild?.querySelector('button') ?? byId('heading')).focus();
+    };
+    item.append(term, remove);
+    return item;
+  }));
 }
 const savedProgress = load(progressKey, {});
 const chosen = new Set(Array.isArray(savedProgress.sets)
@@ -388,7 +423,8 @@ function showPage(page, focus = true) {
   if (page === 'dialogue') renderDialogueSets();
   if (page === 'vocabulary') {
     const scope = location.hash.split('/')[1];
-    const nextScope = scope === 'all' || (Object.hasOwn(sets, scope) && hasSetAccess(scope)) ? scope : undefined;
+    const nextScope = ['all', 'collection'].includes(scope) || (Object.hasOwn(sets, scope) && hasSetAccess(scope))
+      ? scope : undefined;
     if (nextScope !== vocabularyScope) {
       byId('search').value = '';
       for (const button of byId('filters').querySelectorAll('button')) {
@@ -397,9 +433,12 @@ function showPage(page, focus = true) {
     }
     vocabularyScope = nextScope;
     byId('vocabularyOverview').hidden = Boolean(vocabularyScope);
-    byId('vocabularyDetail').hidden = !vocabularyScope;
-    workspaceHeading.textContent = vocabularyScope === 'all' ? 'Словарь' : sets[vocabularyScope]?.title ?? 'Мой словарь';
-    if (vocabularyScope) renderVocabulary();
+    byId('vocabularyDetail').hidden = !vocabularyScope || vocabularyScope === 'collection';
+    byId('wordCollection').hidden = vocabularyScope !== 'collection';
+    workspaceHeading.textContent = vocabularyScope === 'collection' ? 'Копилка слов'
+      : vocabularyScope === 'all' ? 'Словарь' : sets[vocabularyScope]?.title ?? 'Мой словарь';
+    if (vocabularyScope === 'collection') renderWordCollection();
+    else if (vocabularyScope) renderVocabulary();
     else {
       workspaceHeading.hidden = true;
       heading = byId('vocabularyHeading');
@@ -792,13 +831,18 @@ function renderDialogueSets() {
   }));
   updateDialogueSource();
 }
+function updateDialogueDifficulty() {
+  const isStory = dialogueSettings.elements.textFormat.value === 'story';
+  byId('maximizeFamiliarControl').hidden = isStory;
+  byId('targetControl').hidden = !isStory && byId('maximizeFamiliar').checked;
+  dialogueLength.disabled = isStory;
+  byId('dialogueLengthControl').hidden = isStory;
+}
 dialogueSettings.addEventListener('change', event => {
   if (event.target.name === 'dialogueSource' || dialogueSets.contains(event.target)) updateDialogueSource();
-  if (event.target.name === 'textFormat') {
-    dialogueLength.disabled = event.target.value === 'story';
-    byId('dialogueLengthControl').hidden = dialogueLength.disabled;
-  }
+  if (event.target.name === 'textFormat' || event.target.id === 'maximizeFamiliar') updateDialogueDifficulty();
 });
+updateDialogueDifficulty();
 const segmentsZh = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('zh-CN', { granularity: 'sentence' }) : null;
 const segmentsRu = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('ru', { granularity: 'sentence' }) : null;
 const wordsZh = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('zh-CN') : null;
@@ -877,15 +921,19 @@ function playSentence(part) {
     part.status.textContent = 'Не удалось озвучить предложение. Попробуйте ещё раз.';
   }, finish);
 }
-function renderSentence({ segment: text, index }, translated, id) {
+function renderSentence({ segment: text, index }, translated, id, bankWord) {
   const element = document.createElement('div');
   element.className = 'dialogue-sentence';
   const chinese = document.createElement('p');
   chinese.className = 'sentence-text';
   chinese.lang = 'zh-CN';
   const words = [];
-  if (wordsZh) {
-    for (const word of wordsZh.segment(text)) {
+  function appendText(value, offset) {
+    if (!wordsZh) {
+      chinese.append(value);
+      return;
+    }
+    for (const word of wordsZh.segment(value)) {
       if (!word.isWordLike) {
         chinese.append(word.segment);
         continue;
@@ -893,9 +941,65 @@ function renderSentence({ segment: text, index }, translated, id) {
       const span = document.createElement('span');
       span.textContent = word.segment;
       chinese.append(span);
-      words.push({ index: word.index, end: word.index + word.segment.length, element: span });
+      const start = offset + word.index;
+      words.push({ index: start, end: start + word.segment.length, element: span });
     }
-  } else chinese.textContent = text;
+  }
+  const bankStart = bankWord ? bankWord.start - index : -1;
+  const panel = document.createElement('div');
+  if (bankStart >= 0 && bankStart + bankWord.word.zh.length <= text.length) {
+    const { word } = bankWord;
+    const end = bankStart + word.zh.length;
+    appendText(text.slice(0, bankStart), 0);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'dialogue-bank-word';
+    button.textContent = word.zh;
+    button.setAttribute('aria-controls', id + '-word');
+    button.setAttribute('aria-expanded', 'false');
+    chinese.append(button);
+    words.push({ index: bankStart, end, element: button });
+    appendText(text.slice(end), end);
+
+    panel.className = 'dialogue-word-panel';
+    panel.id = id + '-word';
+    panel.hidden = true;
+    const definition = document.createElement('span');
+    definition.textContent = word.pinyin + ' · ' + word.ru;
+    const remember = document.createElement('button');
+    remember.type = 'button';
+    const collection = document.createElement('a');
+    collection.href = '#vocabulary/collection';
+    collection.textContent = 'Копилка';
+    const feedback = document.createElement('span');
+    feedback.setAttribute('role', 'status');
+    function updateRemember() {
+      const saved = savedBankWords.has(word.id);
+      button.classList.toggle('is-saved', saved);
+      remember.textContent = saved ? 'В копилке' : 'Запомнил';
+      remember.setAttribute('aria-disabled', String(saved));
+    }
+    updateRemember();
+    remember.onclick = () => {
+      const outcome = rememberBankWord(savedBankWords, word.id);
+      if (outcome === 'saved') return;
+      if (outcome === 'full') {
+        feedback.textContent = 'Копилка заполнена. Бесплатно можно хранить до 100 слов. Место сверх лимита предусмотрено для подписки.';
+        return;
+      }
+      save(wordCollectionKey, [...savedBankWords]);
+      updateRemember();
+      feedback.textContent = 'Сохранено. В копилке ' + savedBankWords.size + ' из ' + freeWordLimit + '.';
+    };
+    button.onclick = () => {
+      updateRemember();
+      panel.hidden = !panel.hidden;
+      button.setAttribute('aria-expanded', String(!panel.hidden));
+    };
+    panel.append(definition, remember, collection, feedback);
+  } else {
+    appendText(text, 0);
+  }
   const translation = document.createElement('p');
   translation.className = 'translation';
   translation.id = id;
@@ -923,6 +1027,7 @@ function renderSentence({ segment: text, index }, translated, id) {
   listen.onclick = () => playSentence(part);
   actions.append(translate, listen);
   element.append(chinese, actions, translation, status);
+  if (panel.id) element.append(panel);
   return part;
 }
 byId('translate').onclick = () => {
@@ -938,20 +1043,25 @@ dialogueSettings.onsubmit = event => {
     return;
   }
   stopAudio();
-  const target = byId('target').valueAsNumber;
   const isStory = dialogueSettings.elements.textFormat.value === 'story';
+  const maximize = !isStory && byId('maximizeFamiliar').checked;
+  const target = maximize ? null : byId('target').valueAsNumber;
   const topic = dialogueSettings.elements.textTopic.value;
   const known = knownWords();
   scene = isStory ? assembleStory(known, target, topics, topic)
-    : assembleDialogue(known, target, Number(dialogueLength.value), topics, topic);
+    : assembleDialogue(known, target, Number(dialogueLength.value), topics, topic, {
+      saved: savedBankWords, previous: previousDialogue,
+    });
+  if (!isStory) previousDialogue = scene.signature;
   recordStudyActivity();
   byId('dialoguePreview').hidden = true;
   byId('result').hidden = false;
   byId('dialogueTitle').textContent = (isStory ? 'Рассказ: ' : 'Диалог: ') + scene.title;
   const actual = Math.round(100 * scene.familiar / scene.total);
-  byId('coverage').textContent = 'Знакомые единицы — ' + actual + '% (' +
-    scene.familiar + ' из ' + scene.total + '). Цель — ' + target + '%. ' +
-    (actual === target ? '' : 'Показан ближайший доступный вариант.');
+  const distinct = isStory ? '' : 'Разных знакомых слов и фраз: ' + scene.distinct + '. ';
+  const goal = maximize ? '' : ' Цель — ' + target + '%.';
+  byId('coverage').textContent = distinct + 'Доля знакомой лексики — ' + actual + '% (' +
+    scene.familiar + ' из ' + scene.total + ').' + goal;
   byId('play').hidden = false;
   const speakers = [...new Set(scene.lines.map(line => line.speaker))];
   dialogueSpeechRows = [];
@@ -976,7 +1086,7 @@ dialogueSettings.onsubmit = event => {
     const russian = sentences(line.ru, segmentsRu);
     const parts = chinese.map((sentence, index) => renderSentence(sentence,
       chinese.length === 1 ? line.ru : russian.length === chinese.length ? russian[index].segment.trim()
-        : 'Перевод этого предложения пока недоступен.', 'sentence-translation-' + rowIndex + '-' + index));
+        : 'Перевод этого предложения пока недоступен.', 'sentence-translation-' + rowIndex + '-' + index, line.bankWord));
     dialogueSpeechRows.push(parts);
     content.append(...parts.map(part => part.element));
     row.append(portrait, content);

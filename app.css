@@ -208,6 +208,43 @@ body[data-page='dialogue'] #exitStudy { width: min(100%, 990px); }
 .dialogue-sentence.is-speaking { background: #eed8ab7d; }
 .sentence-text { font-size: 1.15rem; line-height: 1.5; }
 .sentence-text .is-spoken-word { color: #382717; background: #efc879; border-radius: 3px; box-shadow: 0 0 0 1px #b3864b; }
+.sentence-text .dialogue-bank-word {
+  display: inline;
+  padding: 0 .2em;
+  border: 0;
+  border-radius: 4px;
+  font: inherit;
+  color: inherit;
+  background: color-mix(in srgb, #e6b35c 25%, transparent);
+  text-decoration: underline dotted;
+  text-underline-offset: .2em;
+}
+.sentence-text .dialogue-bank-word.is-saved { background: color-mix(in srgb, #77a994 35%, transparent); }
+.sentence-text .dialogue-bank-word.is-spoken-word { background: #efc879; }
+.dialogue-word-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  margin-top: .5rem;
+  padding: .65rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.dialogue-word-panel [role="status"]:not(:empty) { flex-basis: 100%; }
+.dialogue-word-panel button[aria-disabled="true"] { opacity: .7; cursor: default; }
+.word-collection-list { list-style: none; display: grid; gap: .5rem; padding: 0; }
+.word-collection-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding: .75rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
 .sentence-actions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
 .sentence-actions button { min-height: 34px; padding: 3px 9px; font-size: .78rem; }
 .sentence-actions .sentence-listen { padding-inline-start: 29px; background: var(--paper) url('./dialogue-art/speaker-icon.svg') left 7px center / 17px no-repeat; }
