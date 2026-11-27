@@ -2,6 +2,7 @@ import { words } from './food.mjs?v=5';
 import { sets } from './catalog.mjs?v=8';
 import { assembleDialogue, assembleStory, dialogueLengths, dialogueVocabulary } from './dialogues.mjs?v=7';
 import { bankWords, freeWordLimit, rememberBankWord } from './dialogue-bank.mjs?v=1';
+import { chooseDailyCards, reviewIntervals } from './daily-cards.mjs';
 import { currentStreak, dateKey, profileProgress, studyDate, studyMonth, weekdayLabels } from './profile.mjs';
 
 const byId = id => document.getElementById(id);
@@ -65,7 +66,11 @@ const promotionActive = () => Date.now() < promotionEndsAt;
 const hasSetAccess = id => chosen.has(id) || (promotionActive() && claimedSets.has(id));
 let lessons = Number.isSafeInteger(savedProgress.lessons) ? Math.max(0, savedProgress.lessons) : 0;
 let texts = Number.isSafeInteger(savedProgress.texts) ? Math.max(0, savedProgress.texts) : 0;
-const saveProgress = () => save(progressKey, { sets: [...chosen], lessons, texts });
+let dailyCompleted = savedProgress.dailyCompleted;
+const saveProgress = () => {
+  const latest = load(progressKey, {});
+  save(progressKey, { sets: [...chosen], lessons, texts, dailyCompleted: dailyCompleted ?? latest.dailyCompleted });
+};
 const savedDays = load(activityKey, []);
 const studyDays = new Set(Array.isArray(savedDays) ? savedDays.filter(day => typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day)) : []);
 const marks = new Map();
@@ -155,9 +160,31 @@ function renderHomeProgress() {
 }
 
 let cardIndex = 0;
-let currentSet;
+let currentSet = 'daily';
 let cardFlip;
-const answered = new Set();
+let cardSession;
+const dailySessionKey = 'kotopochta-daily-cards';
+const reviewDatesKey = 'kotopochta-card-review-dates';
+let reviewDates = load(reviewDatesKey, {});
+if (!reviewDates || typeof reviewDates !== 'object' || Array.isArray(reviewDates)) reviewDates = {};
+function availableCardSets() {
+  return [...new Set([...chosen, ...Object.keys(sets)])].filter(hasSetAccess);
+}
+function openDailySession() {
+  const day = dateKey(studyDate());
+  const decks = availableCardSets().map(id => sets[id].items);
+  const available = new Set(decks.flat());
+  const previous = load(dailySessionKey, {});
+  const storedIds = previous.day === day && Array.isArray(previous.ids);
+  cardSession = storedIds
+    ? { ...previous, ids: previous.ids.filter(id => available.has(id)), answers: previous.answers ?? {} }
+    : { day, ids: chooseDailyCards(decks, marks, reviewDates, day), answers: {}, index: 0 };
+  cardIndex = Math.min(Math.max(0, Number(cardSession.index) || 0), Math.max(0, cardSession.ids.length - 1));
+  persistDailySession();
+}
+function persistDailySession() {
+  if (currentSet === 'daily') save(dailySessionKey, { ...cardSession, index: cardIndex });
+}
 const legacyScenes = ['hello', 'want', 'dumplings', 'rice', 'okay', 'thanks',
   'train', 'station', 'name', 'friend', 'price', 'buy', 'one', 'three', 'today', 'tomorrow'];
 const foodScenes = [
@@ -166,26 +193,34 @@ const foodScenes = [
   '碗', '盘子', '杯子', '菜单', '好吃', '不好吃', '好喝', '辣', '甜', '酸', '咸', '真香', '吃', '喝', '点菜',
 ];
 function createCard() {
-  const id = sets[currentSet].items[cardIndex];
+  const id = cardSession.ids[cardIndex];
+  const topic = currentSet === 'daily' ? availableCardSets().find(key => sets[key].items.includes(id)) : currentSet;
+  const revealed = Object.hasOwn(cardSession.answers, id);
   const [chinese, pinyin, reading, translation] = words[id];
   const card = document.createElement('article');
   const title = document.createElement('h2');
   title.lang = 'zh-CN';
   title.textContent = chinese;
+  const prompt = document.createElement('div');
+  prompt.className = 'card-prompt';
+  prompt.append(title, pronunciation(chinese));
+  card.append(prompt);
+  if (!revealed) return card;
+  card.classList.add('card-revealed');
   const transcription = document.createElement('p');
   transcription.className = 'card-pinyin';
   transcription.textContent = pinyin;
   const detail = document.createElement('p');
   detail.textContent = reading;
   const meaning = document.createElement('p');
+  meaning.className = 'card-meaning';
   meaning.textContent = translation;
-  const answer = document.createElement('details');
-  const reveal = document.createElement('summary');
-  reveal.textContent = 'Показать чтение и перевод';
-  answer.append(reveal, detail, meaning);
-  answer.ontoggle = () => { if (answer.open) recordStudyActivity(); };
+  const answer = document.createElement('div');
+  answer.className = 'card-answer';
+  answer.setAttribute('role', 'status');
+  answer.append(meaning, detail);
   const illustration = document.createElement('span');
-  const specific = currentSet === 'food' ? foodScenes.indexOf(chinese) : -1;
+  const specific = topic === 'food' ? foodScenes.indexOf(chinese) : -1;
   const legacy = legacyScenes.indexOf(id);
   if (specific >= 0 || legacy >= 0) {
     const index = specific >= 0 ? specific % 16 : legacy;
@@ -193,38 +228,51 @@ function createCard() {
     if (specific >= 0) illustration.style.backgroundImage = "url('./food-art-" + (Math.floor(specific / 16) + 1) + ".png')";
     illustration.style.backgroundPosition = (index % 4 * 100 / 3) + '% ' + (Math.floor(index / 4) * 100 / 3) + '%';
   } else {
-    illustration.className = 'postal-art card-topic-art art-' + currentSet;
+    illustration.className = 'postal-art card-topic-art art-' + topic;
   }
   illustration.setAttribute('aria-hidden', 'true');
-  const prompt = document.createElement('div');
-  prompt.className = 'card-prompt';
-  prompt.append(title, transcription, pronunciation(chinese));
-  card.append(prompt, illustration, answer);
+  prompt.insertBefore(transcription, prompt.lastChild);
+  card.append(illustration, answer);
   return card;
 }
 function updateCardControls() {
-  const { title, items } = sets[currentSet];
+  const { ids: items, answers } = cardSession;
+  const title = sets[currentSet]?.title ?? 'Ежедневная тренировка';
   byId('cardPosition').textContent = title + ' · ' + (cardIndex + 1) + ' из ' + items.length;
   byId('cardMeter').max = items.length;
   byId('cardMeter').value = cardIndex + 1;
   byId('previous').disabled = cardIndex === 0;
-  byId('next').disabled = cardIndex === items.length - 1;
-  byId('finishCards').hidden = answered.size !== items.length;
-  byId('reviewCard').setAttribute('aria-pressed', marks.get(items[cardIndex]) === 'review');
-  byId('knowCard').setAttribute('aria-pressed', marks.get(items[cardIndex]) === 'known');
+  byId('next').disabled = !Object.hasOwn(answers, items[cardIndex]);
+  byId('next').textContent = cardIndex === items.length - 1 ? 'Завершить урок' : 'Дальше ›';
+  for (const [button, value] of [['unknownCard', 'learning'], ['reviewCard', 'review'], ['knowCard', 'known']]) {
+    byId(button).setAttribute('aria-pressed', String(answers[items[cardIndex]] === value));
+  }
 }
-function renderCards() {
+function renderCards(focusSummary = false) {
   const pendingFlip = cardFlip;
   cardFlip = undefined;
   pendingFlip?.cancel();
+  const completed = currentSet === 'daily'
+    ? cardSession.day === dailyCompleted : cardSession.completed;
+  const summary = completed || !cardSession.ids.length;
+  byId('cardSummary').hidden = !summary;
+  for (const id of ['card', 'cardControls', 'cardPosition', 'cardMeter']) byId(id).hidden = Boolean(summary);
+  if (summary) {
+    byId('card').replaceChildren();
+    byId('cardSummaryTitle').textContent = completed ? 'Урок завершён' : 'На сегодня карточек больше нет';
+    byId('cardSummaryText').textContent = 'Попробуй применить знакомые слова в диалоге.';
+    if (focusSummary) byId('cardSummaryTitle').focus();
+    return;
+  }
   byId('card').replaceChildren(createCard());
   updateCardControls();
 }
 async function moveCard(direction) {
   const destination = cardIndex + direction;
-  if (cardFlip || destination < 0 || destination >= sets[currentSet].items.length) return;
+  if (cardFlip || destination < 0 || destination >= cardSession.ids.length) return;
   stopAudio();
   cardIndex = destination;
+  persistDailySession();
   const slot = byId('card');
   const previous = slot.firstElementChild;
   if (!previous || matchMedia('(prefers-reduced-motion: reduce)').matches || !slot.animate) {
@@ -257,38 +305,59 @@ async function moveCard(direction) {
 }
 function markCard(value) {
   if (cardFlip) return;
-  const items = sets[currentSet].items;
-  const id = items[cardIndex];
+  const id = cardSession.ids[cardIndex];
+  if (!id) return;
   marks.set(id, value);
   storeWordMarks(id, value);
   recordStudyActivity();
-  answered.add(id);
+  cardSession.answers[id] = value;
+  reviewDates[id] = dateKey(studyDate(), reviewIntervals[value]);
+  save(reviewDatesKey, reviewDates);
+  persistDailySession();
   clearDialogue();
-  if (cardIndex < items.length - 1) void moveCard(1);
-  else updateCardControls();
+  renderCards();
 }
-byId('previous').onclick = () => { recordStudyActivity(); void moveCard(-1); };
-byId('next').onclick = () => { recordStudyActivity(); void moveCard(1); };
+byId('previous').onclick = () => void moveCard(-1);
+byId('next').onclick = () => {
+  if (cardFlip || !Object.hasOwn(cardSession.answers, cardSession.ids[cardIndex])) return;
+  if (cardIndex < cardSession.ids.length - 1) {
+    void moveCard(1);
+    return;
+  }
+  if (currentSet === 'daily') {
+    const latest = load(progressKey, {});
+    if (latest.dailyCompleted === cardSession.day || dailyCompleted === cardSession.day) {
+      dailyCompleted = cardSession.day;
+      renderCards(true);
+      return;
+    }
+    dailyCompleted = cardSession.day;
+    lessons = Math.max(lessons, Number(latest.lessons) || 0);
+  } else {
+    cardSession.completed = true;
+  }
+  lessons++;
+  recordStudyActivity();
+  saveProgress();
+  renderCards(true);
+};
+byId('unknownCard').onclick = () => markCard('learning');
 byId('reviewCard').onclick = () => markCard('review');
 byId('knowCard').onclick = () => markCard('known');
 
 function selectCardSet(id) {
   currentSet = id;
   byId('cardSet').value = id;
-  answered.clear();
-  cardIndex = 0;
+  if (id === 'daily') openDailySession();
+  else {
+    cardSession = { ids: sets[id].items, answers: {} };
+    cardIndex = 0;
+  }
 }
+byId('openDaily').onclick = () => selectCardSet('daily');
 byId('cardSet').onchange = event => {
   selectCardSet(event.target.value);
   renderCards();
-};
-byId('finishCards').onclick = () => {
-  lessons++;
-  recordStudyActivity();
-  answered.clear();
-  cardIndex = 0;
-  saveProgress();
-  navigateTo('profile');
 };
 
 let scene;
@@ -1158,9 +1227,9 @@ function openWorkspace(focus) {
   showPage(landingDestination(), focus);
 }
 function updateCardSetOptions() {
-  const setIds = [...new Set([...chosen, ...Object.keys(sets)])].filter(hasSetAccess);
-  byId('cardSet').replaceChildren(...setIds.map(id => new Option(sets[id].title, id)));
-  if (!setIds.includes(currentSet)) selectCardSet(setIds[0]);
+  const setIds = availableCardSets();
+  byId('cardSet').replaceChildren(new Option('На сегодня', 'daily'), ...setIds.map(id => new Option(sets[id].title, id)));
+  if (currentSet === 'daily' || !setIds.includes(currentSet)) selectCardSet('daily');
   else byId('cardSet').value = currentSet;
 }
 function renderShop() {

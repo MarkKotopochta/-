@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Котопочта · Китайский</title>
-<link rel="stylesheet" href="./app.css?v=47">
+<link rel="stylesheet" href="./app.css?v=48">
 <body>
 <span id="home" aria-hidden="true"></span>
 <header id="topHeader">
@@ -194,7 +194,11 @@
       </div>
     </section>
     <section id="sets" hidden>
-      <p class="learn-intro">Выбирай тему и учи слова</p>
+      <section class="panel daily-entry" aria-labelledby="dailyEntryTitle">
+        <div><h2 id="dailyEntryTitle">Ежедневная тренировка</h2><p>До 10 новых слов и карточек на повторение.</p></div>
+        <a id="openDaily" class="landing-button" href="#cards">К тренировке</a>
+      </section>
+      <p class="learn-intro">Практика по темам</p>
       <ul id="starterSets" class="learn-sets" aria-label="Стартовые наборы"></ul>
       <section class="learn-progress" aria-labelledby="learnProgressTitle">
         <div class="learn-section-heading">
@@ -211,20 +215,26 @@
     </section>
     <section id="cards" class="study" hidden>
       <div class="card-toolbar">
-        <label>Набор <select id="cardSet"></select></label>
+        <label>Режим <select id="cardSet"></select></label>
         <div class="card-progress">
           <p id="cardPosition" aria-live="polite"></p>
-          <progress id="cardMeter" aria-label="Позиция в наборе"></progress>
+          <progress id="cardMeter" aria-label="Позиция в тренировке"></progress>
         </div>
       </div>
       <div id="card"></div>
-      <div class="controls card-controls">
+      <div id="cardControls" class="controls card-controls">
         <button id="previous" type="button">‹ Назад</button>
-        <button id="reviewCard" type="button">Повторить</button>
-        <button id="knowCard" class="primary" type="button">Знаю</button>
+        <button id="unknownCard" type="button">Не знаю</button>
+        <button id="reviewCard" type="button">Плохо помню</button>
+        <button id="knowCard" type="button">Хорошо помню</button>
         <button id="next" type="button">Дальше ›</button>
       </div>
-      <button id="finishCards" class="primary" hidden>Завершить урок</button>
+      <section id="cardSummary" class="panel card-summary" hidden>
+        <h2 id="cardSummaryTitle" tabindex="-1"></h2>
+        <p id="cardSummaryText"></p>
+        <a class="landing-button" href="#dialogue">Перейти к диалогам</a>
+        <a href="#sets">К наборам слов</a>
+      </section>
     </section>
     <section id="dialogue" class="study" hidden>
       <div id="dialogueSettings" class="panel">
@@ -481,6 +491,6 @@
     <a class="landing-button primary" href="https://t.me/kotopochta_cn?direct" target="_blank" rel="noopener noreferrer">Написать в Telegram</a>
   </div>
 </dialog>
-<script type="module" src="./app.mjs?v=38"></script>
+<script type="module" src="./app.mjs?v=39"></script>
 </body>
 </html>

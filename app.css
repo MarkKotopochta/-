@@ -1279,12 +1279,21 @@ body[data-page='cards'] #heading {
 #card .card-prompt { gap: 9px; }
 #card .card-pinyin { margin: 0; font-size: clamp(1.05rem,2.8vw,1.6rem); }
 #card .word-scene { max-width: 238px; }
+#card article:not(.card-revealed) { grid-template-columns: 1fr; }
+.card-answer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 12px; }
+.card-answer p { margin: 0; }
+.card-answer .card-meaning { font-size: clamp(1.25rem, 4vw, 1.8rem); font-weight: 700; }
+.daily-entry { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+.daily-entry h2, .daily-entry p, .card-summary h2 { margin: 0; }
+.daily-entry p { margin-top: 5px; }
+.card-summary { text-align: center; margin-top: 16px; }
+.card-summary a { display: inline-block; margin: 4px 8px; }
 .card-rotor { display: grid; transform-style: preserve-3d; }
 .card-rotor > article { grid-area: 1 / 1; backface-visibility: hidden; }
 .card-rotor > .card-opposite { transform: rotateY(180deg); }
-#cards .card-controls { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); }
+#cards .card-controls { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); }
 #reviewCard { background: #edbc64; color: #432916; border-color: #b98c47; }
-#reviewCard[aria-pressed='true'], #knowCard[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 2px; }
+#cards .card-controls button[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 2px; }
 @media (min-width: 980px) {
   #cards::after {
     content: '';
@@ -1298,8 +1307,9 @@ body[data-page='cards'] #heading {
   }
 }
 @media (max-width: 520px) {
-  #cards .card-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #cards #previous { grid-row: 2; }
+  #cards .card-controls { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  #cards .card-controls button { grid-column: span 2; padding-inline: 5px; }
+  #cards #previous, #cards #next { grid-row: 2; grid-column: span 3; }
   #card article { min-height: 250px; }
   #cards .card-toolbar { gap: 8px; }
 }
