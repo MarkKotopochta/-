@@ -1291,7 +1291,11 @@ body[data-page='cards'] #heading {
 .card-rotor { display: grid; transform-style: preserve-3d; }
 .card-rotor > article { grid-area: 1 / 1; backface-visibility: hidden; }
 .card-rotor > .card-opposite { transform: rotateY(180deg); }
-#cards .card-controls { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); }
+#cards .card-controls { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+.card-grades { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.card-grades button { line-height: 1.2; }
+.card-grades small { display: block; font-size: .74rem; font-weight: 500; margin-top: 5px; }
+#finishCardPractice { display: block; margin: 12px auto 0; }
 #reviewCard { background: #edbc64; color: #432916; border-color: #b98c47; }
 #cards .card-controls button[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 2px; }
 @media (min-width: 980px) {
@@ -1307,9 +1311,8 @@ body[data-page='cards'] #heading {
   }
 }
 @media (max-width: 520px) {
-  #cards .card-controls { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  #cards .card-controls button { grid-column: span 2; padding-inline: 5px; }
-  #cards #previous, #cards #next { grid-row: 2; grid-column: span 3; }
+  #cards .card-grades { grid-row: 1; grid-column: 1 / -1; gap: 5px; }
+  #cards .card-grades button { padding-inline: 4px; }
   #card article { min-height: 250px; }
   #cards .card-toolbar { gap: 8px; }
 }

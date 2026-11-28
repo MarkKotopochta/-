@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Котопочта · Китайский</title>
-<link rel="stylesheet" href="./app.css?v=48">
+<link rel="stylesheet" href="./app.css?v=49">
 <body>
 <span id="home" aria-hidden="true"></span>
 <header id="topHeader">
@@ -224,11 +224,15 @@
       <div id="card"></div>
       <div id="cardControls" class="controls card-controls">
         <button id="previous" type="button">‹ Назад</button>
-        <button id="unknownCard" type="button">Не знаю</button>
-        <button id="reviewCard" type="button">Плохо помню</button>
-        <button id="knowCard" type="button">Хорошо помню</button>
-        <button id="next" type="button">Дальше ›</button>
+        <button id="showCardAnswer" class="primary" type="button">Показать ответ</button>
+        <div id="cardGrades" class="card-grades" hidden>
+          <button id="unknownCard" type="button">Не знаю<small id="unknownInterval"></small></button>
+          <button id="reviewCard" type="button" title="Вспомнил правильно, но с трудом">Плохо помню<small id="reviewInterval"></small></button>
+          <button id="knowCard" class="primary" type="button">Хорошо помню<small id="knowInterval"></small></button>
+        </div>
+        <button id="next" type="button" hidden>Дальше ›</button>
       </div>
+      <button id="finishCardPractice" type="button" hidden>Закончить тренировку</button>
       <section id="cardSummary" class="panel card-summary" hidden>
         <h2 id="cardSummaryTitle" tabindex="-1"></h2>
         <p id="cardSummaryText"></p>
@@ -491,6 +495,6 @@
     <a class="landing-button primary" href="https://t.me/kotopochta_cn?direct" target="_blank" rel="noopener noreferrer">Написать в Telegram</a>
   </div>
 </dialog>
-<script type="module" src="./app.mjs?v=39"></script>
+<script type="module" src="./app.mjs?v=40"></script>
 </body>
 </html>

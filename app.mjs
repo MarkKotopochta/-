@@ -2,7 +2,7 @@ import { words } from './food.mjs?v=5';
 import { sets } from './catalog.mjs?v=8';
 import { assembleDialogue, assembleStory, dialogueLengths, dialogueVocabulary } from './dialogues.mjs?v=7';
 import { bankWords, freeWordLimit, rememberBankWord } from './dialogue-bank.mjs?v=1';
-import { chooseDailyCards, reviewIntervals } from './daily-cards.mjs';
+import { addSessionRepeat, chooseDailyCards, planCardReview } from './daily-cards.mjs?v=2';
 import { currentStreak, dateKey, profileProgress, studyDate, studyMonth, weekdayLabels } from './profile.mjs';
 
 const byId = id => document.getElementById(id);
@@ -163,27 +163,44 @@ let cardIndex = 0;
 let currentSet = 'daily';
 let cardFlip;
 let cardSession;
-const dailySessionKey = 'kotopochta-daily-cards';
-const reviewDatesKey = 'kotopochta-card-review-dates';
-let reviewDates = load(reviewDatesKey, {});
-if (!reviewDates || typeof reviewDates !== 'object' || Array.isArray(reviewDates)) reviewDates = {};
+const scheduleKey = 'kotopochta-fsrs-v1';
+const schedule = load(scheduleKey, {});
+const memoryCards = schedule.cards ?? {};
+const legacyDates = load('kotopochta-card-review-dates', {});
+const ratings = [
+  ['unknownCard', 'unknownInterval', 'learning'],
+  ['reviewCard', 'reviewInterval', 'review'],
+  ['knowCard', 'knowInterval', 'known'],
+];
 function availableCardSets() {
   return [...new Set([...chosen, ...Object.keys(sets)])].filter(hasSetAccess);
+}
+function newCardSession(ids, day) {
+  return { day, size: ids.length, queue: ids.map(id => ({ id })) };
 }
 function openDailySession() {
   const day = dateKey(studyDate());
   const decks = availableCardSets().map(id => sets[id].items);
   const available = new Set(decks.flat());
-  const previous = load(dailySessionKey, {});
-  const storedIds = previous.day === day && Array.isArray(previous.ids);
-  cardSession = storedIds
-    ? { ...previous, ids: previous.ids.filter(id => available.has(id)), answers: previous.answers ?? {} }
-    : { day, ids: chooseDailyCards(decks, marks, reviewDates, day), answers: {}, index: 0 };
-  cardIndex = Math.min(Math.max(0, Number(cardSession.index) || 0), Math.max(0, cardSession.ids.length - 1));
-  persistDailySession();
+  const saved = schedule.session;
+  if (saved?.day === day && Array.isArray(saved.queue) && saved.queue.length) {
+    const queue = saved.queue.filter(entry => available.has(entry.id));
+    const index = saved.queue.slice(0, saved.index).filter(entry => available.has(entry.id)).length;
+    cardSession = { ...saved, queue, size: queue.filter(entry => !entry.repeat).length };
+    cardIndex = Math.min(index, Math.max(0, queue.length - 1));
+  } else {
+    const previous = load('kotopochta-daily-cards', {});
+    const ids = previous.day === day && Array.isArray(previous.ids)
+      ? previous.ids.filter(id => available.has(id) && !Object.hasOwn(previous.answers ?? {}, id))
+      : chooseDailyCards(decks, marks, legacyDates, memoryCards, new Date());
+    cardSession = newCardSession(ids, day);
+    cardIndex = 0;
+  }
+  saveCardSchedule();
 }
-function persistDailySession() {
-  if (currentSet === 'daily') save(dailySessionKey, { ...cardSession, index: cardIndex });
+function saveCardSchedule() {
+  if (currentSet === 'daily') schedule.session = { ...cardSession, index: cardIndex };
+  save(scheduleKey, { ...schedule, cards: memoryCards });
 }
 const legacyScenes = ['hello', 'want', 'dumplings', 'rice', 'okay', 'thanks',
   'train', 'station', 'name', 'friend', 'price', 'buy', 'one', 'three', 'today', 'tomorrow'];
@@ -193,9 +210,10 @@ const foodScenes = [
   '碗', '盘子', '杯子', '菜单', '好吃', '不好吃', '好喝', '辣', '甜', '酸', '咸', '真香', '吃', '喝', '点菜',
 ];
 function createCard() {
-  const id = cardSession.ids[cardIndex];
+  const entry = cardSession.queue[cardIndex];
+  const { id } = entry;
   const topic = currentSet === 'daily' ? availableCardSets().find(key => sets[key].items.includes(id)) : currentSet;
-  const revealed = Object.hasOwn(cardSession.answers, id);
+  const revealed = entry.shown;
   const [chinese, pinyin, reading, translation] = words[id];
   const card = document.createElement('article');
   const title = document.createElement('h2');
@@ -235,17 +253,33 @@ function createCard() {
   card.append(illustration, answer);
   return card;
 }
+function reviewPlan(rating, now) {
+  const { id } = cardSession.queue[cardIndex];
+  const shortReviews = cardSession.queue.slice(0, cardIndex).filter(entry => entry.id === id && entry.short).length;
+  return planCardReview(memoryCards[id], marks.get(id), legacyDates[id], rating, now, shortReviews);
+}
 function updateCardControls() {
-  const { ids: items, answers } = cardSession;
+  const { queue, size } = cardSession;
+  const entry = queue[cardIndex];
   const title = sets[currentSet]?.title ?? 'Ежедневная тренировка';
-  byId('cardPosition').textContent = title + ' · ' + (cardIndex + 1) + ' из ' + items.length;
-  byId('cardMeter').max = items.length;
-  byId('cardMeter').value = cardIndex + 1;
+  const position = queue.slice(0, cardIndex + 1).filter(item => !item.repeat).length;
+  byId('cardPosition').textContent = title + ' · ' + (entry.repeat ? 'Повторение · ' : '') + position + ' из ' + size;
+  byId('cardMeter').max = size;
+  byId('cardMeter').value = position;
   byId('previous').disabled = cardIndex === 0;
-  byId('next').disabled = !Object.hasOwn(answers, items[cardIndex]);
-  byId('next').textContent = cardIndex === items.length - 1 ? 'Завершить урок' : 'Дальше ›';
-  for (const [button, value] of [['unknownCard', 'learning'], ['reviewCard', 'review'], ['knowCard', 'known']]) {
-    byId(button).setAttribute('aria-pressed', String(answers[items[cardIndex]] === value));
+  byId('next').hidden = !entry.rating;
+  byId('next').textContent = cardIndex === queue.length - 1 ? 'Завершить урок' : 'Дальше ›';
+  byId('showCardAnswer').hidden = Boolean(entry.shown);
+  byId('cardGrades').hidden = !entry.shown || Boolean(entry.rating);
+  byId('finishCardPractice').hidden = !entry.repeat || queue.some(item => !item.repeat && !item.rating);
+  if (!byId('cardGrades').hidden) {
+    const now = new Date();
+    for (const [, hint, value] of ratings) {
+      const plan = reviewPlan(value, now);
+      byId(hint).textContent = plan.repeat
+        ? (value === 'review' ? 'Позже в уроке' : 'Скоро в уроке')
+        : 'Через ' + counted(plan.days, ['день', 'дня', 'дней']);
+    }
   }
 }
 function renderCards(focusSummary = false) {
@@ -254,10 +288,11 @@ function renderCards(focusSummary = false) {
   pendingFlip?.cancel();
   const completed = currentSet === 'daily'
     ? cardSession.day === dailyCompleted : cardSession.completed;
-  const summary = completed || !cardSession.ids.length;
+  const summary = completed || !cardSession.queue.length;
   byId('cardSummary').hidden = !summary;
   for (const id of ['card', 'cardControls', 'cardPosition', 'cardMeter']) byId(id).hidden = Boolean(summary);
   if (summary) {
+    byId('finishCardPractice').hidden = true;
     byId('card').replaceChildren();
     byId('cardSummaryTitle').textContent = completed ? 'Урок завершён' : 'На сегодня карточек больше нет';
     byId('cardSummaryText').textContent = 'Попробуй применить знакомые слова в диалоге.';
@@ -269,14 +304,15 @@ function renderCards(focusSummary = false) {
 }
 async function moveCard(direction) {
   const destination = cardIndex + direction;
-  if (cardFlip || destination < 0 || destination >= cardSession.ids.length) return;
+  if (cardFlip || destination < 0 || destination >= cardSession.queue.length) return;
   stopAudio();
   cardIndex = destination;
-  persistDailySession();
+  saveCardSchedule();
   const slot = byId('card');
   const previous = slot.firstElementChild;
   if (!previous || matchMedia('(prefers-reduced-motion: reduce)').matches || !slot.animate) {
     renderCards();
+    focusCardAction();
     return;
   }
   const incoming = createCard();
@@ -302,28 +338,46 @@ async function moveCard(direction) {
   incoming.classList.remove('card-opposite');
   slot.replaceChildren(incoming);
   updateCardControls();
+  focusCardAction();
+}
+function focusCardAction() {
+  const id = !byId('showCardAnswer').hidden ? 'showCardAnswer'
+    : !byId('cardGrades').hidden ? 'unknownCard' : 'next';
+  byId(id).focus({ preventScroll: true });
 }
 function markCard(value) {
   if (cardFlip) return;
-  const id = cardSession.ids[cardIndex];
-  if (!id) return;
+  const entry = cardSession.queue[cardIndex];
+  if (!entry?.shown || entry.rating) return;
+  const { id } = entry;
+  const plan = reviewPlan(value, new Date());
+  memoryCards[id] = plan.card;
+  entry.rating = value;
+  entry.short = Boolean(plan.repeat);
+  if (plan.repeat) addSessionRepeat(cardSession.queue, cardIndex, value);
   marks.set(id, value);
   storeWordMarks(id, value);
   recordStudyActivity();
-  cardSession.answers[id] = value;
-  reviewDates[id] = dateKey(studyDate(), reviewIntervals[value]);
-  save(reviewDatesKey, reviewDates);
-  persistDailySession();
   clearDialogue();
-  renderCards();
+  if (cardIndex < cardSession.queue.length - 1) void moveCard(1);
+  else finishCardLesson();
 }
 byId('previous').onclick = () => void moveCard(-1);
 byId('next').onclick = () => {
-  if (cardFlip || !Object.hasOwn(cardSession.answers, cardSession.ids[cardIndex])) return;
-  if (cardIndex < cardSession.ids.length - 1) {
-    void moveCard(1);
-    return;
-  }
+  if (cardIndex === cardSession.queue.length - 1) finishCardLesson();
+  else void moveCard(1);
+};
+byId('showCardAnswer').onclick = () => {
+  const entry = cardSession.queue[cardIndex];
+  if (cardFlip || entry.shown) return;
+  entry.shown = true;
+  saveCardSchedule();
+  renderCards();
+  focusCardAction();
+};
+function finishCardLesson() {
+  if (cardFlip) return;
+  saveCardSchedule();
   if (currentSet === 'daily') {
     const latest = load(progressKey, {});
     if (latest.dailyCompleted === cardSession.day || dailyCompleted === cardSession.day) {
@@ -340,17 +394,16 @@ byId('next').onclick = () => {
   recordStudyActivity();
   saveProgress();
   renderCards(true);
-};
-byId('unknownCard').onclick = () => markCard('learning');
-byId('reviewCard').onclick = () => markCard('review');
-byId('knowCard').onclick = () => markCard('known');
+}
+byId('finishCardPractice').onclick = finishCardLesson;
+for (const [button, , value] of ratings) byId(button).onclick = () => markCard(value);
 
 function selectCardSet(id) {
   currentSet = id;
   byId('cardSet').value = id;
   if (id === 'daily') openDailySession();
   else {
-    cardSession = { ids: sets[id].items, answers: {} };
+    cardSession = newCardSession(sets[id].items);
     cardIndex = 0;
   }
 }
